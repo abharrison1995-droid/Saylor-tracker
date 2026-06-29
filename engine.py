@@ -227,14 +227,24 @@ def get_treasury() -> Optional[dict]:
 
 
 # --------------------------------------------------------------------------- #
-# Markdown Builders: Extra Features
+# Markdown Builders
 # --------------------------------------------------------------------------- #
 
 def build_grid_table(grid: dict) -> str:
-    lines = ["| Ticker | Close | 24h Change | % from ATH |", "|:------:|------:|:----------:|:----------:|"]
+    lines = ["| Ticker | Close Price | 24h Change | % From ATH |", "|:---|:---:|:---:|:---:|"]
     for tkr in MSTR_GRID_TICKERS:
         close, pct, ath_pct = grid.get(tkr, (None, None, None))
-        arrow = " 🔺" if isinstance(pct, float) and pct > 0 else (" 🔻" if isinstance(pct, float) and pct < 0 else " ▪")
+        
+        if isinstance(pct, float):
+            if pct > 0:
+                arrow = ' <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span>'
+            elif pct < 0:
+                arrow = ' <span style="color: #ff4444; font-weight: bold; font-size: 0.9em;">▼</span>'
+            else:
+                arrow = ' <span style="color: #888888; font-size: 0.9em;">■</span>'
+        else:
+            arrow = ""
+            
         ath_str = "ATH 🚀" if isinstance(ath_pct, float) and ath_pct >= 0 else fmt_pct(ath_pct)
         lines.append(f"| **{tkr}** | {fmt_money(close)} | {fmt_pct(pct)}{arrow} | {ath_str} |")
     return "\n".join(lines)
@@ -249,7 +259,6 @@ def build_mnav_section(mstr_mkt_cap: Optional[float], treasury: Optional[dict]) 
     
     lines = [f"Today:  {'▓' * min(int(mnav * 10), 30)} {mnav:.2f}x (Live)"]
     
-    # Generate an illustrative terminal-style history for the visual effect 
     random.seed(DATE_STR) 
     for i in range(1, 7):
         hist_mnav = mnav + random.uniform(-0.4, 0.4)
@@ -295,7 +304,7 @@ def build_hall_of_rekt(treasury: Optional[dict]) -> str:
             f"<div class='rekt-bar'><div class='rekt-fill' style='width: {get_width(mstr_loss_b)}%; background: #ff4444;'>${mstr_loss_b:.2f}B</div></div>"
         ])
     else:
-        html.append(f"<div class='rekt-label' style='color: #00ff00;'>New Saylor (MSTR PnL, {DATE_STR}) - IN PROFIT 🚀 No rekt here.</div>")
+        html.append(f"<div class='rekt-label' style='color: #00ff00; margin-top: 10px; font-weight: bold;'>New Saylor (MSTR PnL, {DATE_STR}) - IN PROFIT 🚀 No rekt here.</div>")
 
     html.append("</div>\n")
     return "\n".join(html)
@@ -306,7 +315,7 @@ def build_shitcoin_treasury() -> str:
 _Because not everyone has laser eyes._
 
 | Company | Primary Distraction | Status |
-|:---|:---|:---|
+|:---|:---:|:---|
 | **Tesla (TSLA)** | Dogecoin (DOGE) | _Elon's lingering meme addiction_ |
 | **Meitu (1357.HK)** | Ethereum (ETH) | _Waiting for gas fees to drop_ |
 | **Nexon (3659.T)** | Various Altcoins | _Gacha game mechanics in real life_ |
@@ -319,14 +328,35 @@ def build_index(grid, treasury, mstr_mkt_cap) -> str:
     archive_lines = [f"- [{p.stem}](reports/{p.stem}.html)" for p in recent] or ["_No reports yet._"]
     today_link = f"reports/{DATE_STR}.html"
 
-    # Loss Summary formatting
-    if treasury and isinstance(treasury.get("pnl"), float) and treasury["pnl"] < 0:
-        h, entry, current, pnl = treasury["holdings"], treasury["entry_value"], treasury["current_value"], abs(treasury["pnl"])
-        pnl_html = f'<div class="loss-box"><strong>Strategy holds {h:,.0f} BTC bought for {fmt_compact(entry)}; at CoinGecko\'s valuation of {fmt_compact(current)} that is an unrealized loss of <span style="color: #ff4444; font-weight: 900; font-size: 1.1em;">{fmt_compact(pnl)} ({fmt_pct(treasury["pnl_pct"])})</span></strong></div>'
-    elif treasury:
-        pnl_html = f'<div class="loss-box"><strong>Treasury data retrieved: Holdings {fmt_compact(treasury["current_value"])}. Currently in profit.</strong></div>'
+    if treasury:
+        h = treasury.get("holdings", 0)
+        entry = treasury.get("entry_value")
+        current = treasury.get("current_value")
+        pnl = treasury.get("pnl")
+        pnl_pct = treasury.get("pnl_pct")
+        
+        btc_count_str = f"{h:,.0f} BTC" if isinstance(h, (int, float)) else "N/A"
+        
+        if isinstance(pnl, float):
+            if pnl < 0:
+                pnl_html = f"""<div class="loss-box" style="border-left: 4px solid #ff4444; background: rgba(255,68,68,0.03);">
+                    <strong>Vault Balance:</strong> <span style="color: #F7931A; font-size: 1.2em; font-weight: bold;">{btc_count_str}</span><br>
+                    <strong>Acquisition Basis:</strong> {fmt_compact(entry)} | <strong>Current Spot Value:</strong> {fmt_compact(current)}<br>
+                    <strong>Unrealized PnL:</strong> <span style="color: #ff4444; font-weight: 900;">-{fmt_compact(abs(pnl))} ({fmt_pct(pnl_pct)})</span>
+                </div>"""
+            else:
+                pnl_html = f"""<div class="loss-box" style="border-left: 4px solid #00ff00; background: rgba(0,255,0,0.03);">
+                    <strong>Vault Balance:</strong> <span style="color: #F7931A; font-size: 1.2em; font-weight: bold;">{btc_count_str}</span><br>
+                    <strong>Acquisition Basis:</strong> {fmt_compact(entry)} | <strong>Current Spot Value:</strong> {fmt_compact(current)}<br>
+                    <strong>Unrealized PnL:</strong> <span style="color: #00ff00; font-weight: 900;">+{fmt_compact(pnl)} ({fmt_pct(pnl_pct)})</span>
+                </div>"""
+        else:
+            pnl_html = f"""<div class="loss-box" style="border-left: 4px solid #333;">
+                <strong>Vault Balance:</strong> <span style="color: #F7931A; font-size: 1.2em; font-weight: bold;">{btc_count_str}</span><br>
+                _Market valuations temporary unavailable._
+            </div>"""
     else:
-        pnl_html = f'<div class="loss-box">_Treasury data unavailable._</div>'
+        pnl_html = f'<div class="loss-box">_Treasury data tracking failed._</div>'
 
     style_block = """
 <style>
@@ -336,12 +366,45 @@ def build_index(grid, treasury, mstr_mkt_cap) -> str:
   h1, h2, h3, h4 { color: #F7931A !important; text-shadow: 0 0 12px rgba(247, 147, 26, 0.4) !important; border-bottom: none !important; }
   a { color: #F7931A !important; text-decoration: none !important; }
   a:hover { text-shadow: 0 0 8px rgba(247, 147, 26, 0.8) !important; }
-  table { background-color: #111 !important; border: 1px solid #333 !important; width: 100%; max-width: 650px; }
-  th { background-color: #1a1a1a !important; color: #F7931A !important; border-bottom: 2px solid #F7931A !important; padding: 10px; }
-  td { color: #ffffff !important; border-bottom: 1px solid #222 !important; padding: 10px; }
-  .loss-box { background-color: rgba(255, 68, 68, 0.05) !important; border-left: 4px solid #ff4444 !important; padding: 15px !important; margin: 20px 0 !important; color: #fff !important; }
+  
+  table { 
+    background-color: #111 !important; 
+    border-collapse: collapse !important;
+    border: 1px solid #333 !important; 
+    width: 100%; 
+    max-width: 800px; 
+    margin: 25px 0 !important;
+    box-shadow: 0 0 20px rgba(247, 147, 26, 0.05) !important;
+  }
+  th { 
+    background-color: #161616 !important; 
+    color: #F7931A !important; 
+    border-bottom: 2px solid #F7931A !important; 
+    padding: 12px 18px !important; 
+    font-weight: bold !important;
+    font-size: 0.95em !important;
+    letter-spacing: 0.5px;
+  }
+  td { 
+    color: #ffffff !important; 
+    border-bottom: 1px solid #222 !important; 
+    padding: 12px 18px !important;
+    font-size: 1em !important;
+  }
+  tr:hover {
+    background-color: #171717 !important;
+  }
+  
+  .loss-box { 
+    padding: 18px !important; 
+    margin: 25px 0 !important; 
+    color: #fff !important; 
+    border-radius: 4px;
+    line-height: 1.6;
+    max-width: 762px;
+  }
   .glitch { color: #F7931A !important; font-weight: 900; }
-  .rekt-container { background-color: #111 !important; border: 1px solid #333 !important; padding: 20px !important; border-radius: 8px !important; margin-bottom: 20px !important; }
+  .rekt-container { background-color: #111 !important; border: 1px solid #333 !important; padding: 20px !important; border-radius: 8px !important; margin-bottom: 20px !important; max-width: 760px; }
   .rekt-label { color: #e0e0e0 !important; font-size: 0.9em !important; margin-bottom: 5px !important; font-weight: bold !important; }
   .rekt-bar { background: #222 !important; width: 100% !important; border-radius: 4px !important; margin-bottom: 15px !important; overflow: hidden !important; border: 1px solid #000 !important; }
   .rekt-fill { height: 24px !important; text-align: right !important; padding-right: 10px !important; color: white !important; font-weight: 900 !important; line-height: 24px !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important; }
@@ -377,11 +440,9 @@ def main() -> int:
     grid = get_mstr_grid()
     treasury = get_treasury()
     
-    # Grab MSTR market cap for the mNAV chart
     mstr_quote = fmp_batch_quotes(["MSTR"])
     mstr_mkt_cap = mstr_quote[0].get("market_cap") if mstr_quote else None
 
-    # Overwrite index with the heavily-themed dashboard
     index_md = build_index(grid, treasury, mstr_mkt_cap)
     INDEX_FILE.write_text(index_md, encoding="utf-8")
     log.info("Wrote %s", INDEX_FILE)
