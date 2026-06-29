@@ -1,0 +1,84 @@
+name: Daily Saylor Tracker
+
+# Runs the tracker every weekday at 20:00 UTC, commits the generated
+# Markdown back to the repo, then builds + deploys GitHub Pages.
+#
+# ONE-TIME SETUP (cannot be done from this file):
+#   1. Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+#   2. Settings -> Secrets and variables -> Actions -> add:
+#        FMP_API_KEY      (free key from financialmodelingprep.com — powers the screeners)
+#        CG_DEMO_API_KEY  (optional; a free CoinGecko demo key for higher rate limits)
+#   3. Trigger a first run manually via the "Run workflow" button to test.
+
+on:
+  schedule:
+    - cron: "0 20 * * 1-5"   # 20:00 UTC, Monday–Friday
+  workflow_dispatch: {}       # manual trigger from the Actions tab
+
+# Least-privilege token: write code (for the commit) + deploy Pages.
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Don't let overlapping runs fight over the Pages deployment.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install --upgrade requests yfinance
+
+      - name: Run tracker engine
+        env:
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          CG_DEMO_API_KEY: ${{ secrets.CG_DEMO_API_KEY }}
+        run: python engine.py
+
+      - name: Commit generated files
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/ index.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: daily tracker update ($(date -u +%F))"
+            git push
+          fi
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build site with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3   # defaults to ./_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
