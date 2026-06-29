@@ -56,22 +56,22 @@ layout: null
 </style>
 
 <h1><span class='glitch'>S</span>ayl<span class='glitch'>o</span>r Inf<span class='glitch'>i</span>n<span class='glitch'>i</span>t<span class='glitch'>e</span> M<span class='glitch'>o</span>n<span class='glitch'>e</span>y Gl<span class='glitch'>i</span>tch Tr<span class='glitch'>a</span>ck<span class='glitch'>e</span>r</h1>
-<p><em>Last updated 2026-06-29 13:53 UTC</em></p>
+<p><em>Last updated 2026-06-29 21:15 UTC</em></p>
 <h3>👉 <a href="reports/2026-06-29.html">Today's full report — 2026-06-29</a></h3>
 <h2>The S<span class='glitch'>a</span>yl<span class='glitch'>o</span>r Sc<span class='glitch'>a</span>m G<span class='glitch'>r</span>id</h2>
 | Ticker | Close Price | 24h Change | % From ATH |
 |:---|:---:|:---:|:---:|
-| **MSTR** | $85.50 | +3.88% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -81.96% |
-| **MSTY** | $12.03 | +4.34% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -94.64% |
-| **STRC** | $78.96 | +5.89% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -21.10% |
-| **STRK** | $57.23 | +6.40% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -54.49% |
-| **STRF** | $89.15 | +5.67% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -29.51% |
-| **STRD** | $56.70 | +6.02% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -40.47% |
+| **MSTR** | $92.68 | +12.60% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -80.44% |
+| **MSTY** | $12.89 | +11.80% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -94.26% |
+| **STRC** | $83.67 | +12.20% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -16.39% |
+| **STRK** | $59.49 | +10.60% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -52.69% |
+| **STRF** | $91.98 | +9.02% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -27.28% |
+| **STRD** | $56.25 | +5.18% <span style="color: #00ff00; font-weight: bold; font-size: 0.9em;">▲</span> | -40.94% |
 
 <div class="loss-box" style="border-left: 4px solid #ff4444; background: rgba(255,68,68,0.03);">
                     <strong>Vault Balance:</strong> <span style="color: #F7931A; font-size: 1.2em; font-weight: bold;">847,363 BTC</span><br>
-                    <strong>Acquisition Basis:</strong> $64.10B | <strong>Current Spot Value:</strong> $50.25B<br>
-                    <strong>Unrealized PnL:</strong> <span style="color: #ff4444; font-weight: 900;">-$13.85B (-21.61%)</span>
+                    <strong>Acquisition Basis:</strong> $64.10B | <strong>Current Spot Value:</strong> $51.11B<br>
+                    <strong>Unrealized PnL:</strong> <span style="color: #ff4444; font-weight: 900;">-$13.00B (-20.28%)</span>
                 </div>
 
 ## 📉 The Hall of Rekt
@@ -82,8 +82,8 @@ _Historical comparisons of unprecedented wealth evaporation._
 <div class='rekt-bar'><div class='rekt-fill' style='width: 100%; background: #b30000;'>$20.0B</div></div>
 <div class='rekt-label'>Old Saylor (Dot-com Peak-to-Trough, 2000) - $13.5B</div>
 <div class='rekt-bar'><div class='rekt-fill' style='width: 67%; background: #ff8800;'>$13.5B</div></div>
-<div class='rekt-label'>New Saylor (MSTR Unrealized Loss, 2026-06-29) - $13.85B</div>
-<div class='rekt-bar'><div class='rekt-fill' style='width: 69%; background: #ff4444;'>$13.85B</div></div>
+<div class='rekt-label'>New Saylor (MSTR Unrealized Loss, 2026-06-29) - $13.00B</div>
+<div class='rekt-bar'><div class='rekt-fill' style='width: 64%; background: #ff4444;'>$13.00B</div></div>
 </div>
 
 _mNAV data currently unavailable._
