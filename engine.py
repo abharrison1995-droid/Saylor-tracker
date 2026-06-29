@@ -394,11 +394,11 @@ def build_screener_section(title: str, screener: Optional[dict], note: str = "")
 
 def build_report(btc_price, grid, treasury, bluechip, penny) -> str:
     return "\n".join([
-        f"---\ntitle: \"Saylor Tracker — {DATE_STR}\"\n---\n",
-        f"# Saylor Tracker — {DATE_STR}",
+        f"---\ntitle: \"Saylor Infinite Money Glitch Tracker — {DATE_STR}\"\n---\n",
+        f"# Saylor Infinite Money Glitch Tracker — {DATE_STR}",
         f"_Generated {TIMESTAMP_STR}_\n",
         f"**CME Bitcoin Futures (BTC=F):** {fmt_money(btc_price)}\n",
-        "## The Strategy Grid\n",
+        "## The Saylor Scam Grid\n",
         build_grid_table(grid) + "\n",
         build_pnl_sentence(treasury) + "\n",
         "_P&L is marked against CoinGecko's spot valuation of the holdings "
@@ -427,17 +427,85 @@ def build_index(grid, treasury) -> str:
         f"- [{p.stem}](reports/{p.stem}.html)" for p in recent
     ] or ["_No reports yet._"]
     today_link = f"reports/{DATE_STR}.html"
+    
+    pnl_sentence = build_pnl_sentence(treasury)
+    
+    # Safely convert raw markdown text inside the P&L block to structured HTML
+    # for cleaner rendering inside our CSS loss container.
+    if treasury and isinstance(treasury.get("pnl"), float) and treasury["pnl"] < 0:
+        pnl_cleaned = pnl_sentence.strip("*")
+        if "unrealized loss of " in pnl_cleaned:
+            parts = pnl_cleaned.split("unrealized loss of ")
+            pnl_html = f'<div class="loss-box"><strong>{parts[0]}unrealized loss of <span style="color: #ff4444;">{parts[1]}</span></strong></div>'
+        else:
+            pnl_html = f'<div class="loss-box"><strong>{pnl_cleaned}</strong></div>'
+    else:
+        pnl_html = f'<div class="loss-box">{pnl_sentence}</div>'
+
+    style_block = """<style>
+  body {
+    background-color: #0b0b0b;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  h1, h2, h3 {
+    color: #F7931A;
+    text-shadow: 0 0 10px rgba(247, 147, 26, 0.3);
+  }
+  a {
+    color: #F7931A;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+  }
+  a:hover {
+    text-shadow: 0 0 8px rgba(247, 147, 26, 0.8);
+  }
+  table {
+    width: 100%;
+    max-width: 600px;
+    background-color: #141414;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border-collapse: collapse;
+  }
+  th {
+    color: #F7931A;
+    background-color: #1f1f1f;
+    border-bottom: 2px solid #333;
+    padding: 10px;
+  }
+  td {
+    border-bottom: 1px solid #222;
+    padding: 10px;
+  }
+  .loss-box {
+    background-color: #1a1a1a;
+    border-left: 4px solid #ff4444;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid #333;
+    margin: 30px 0 15px 0;
+  }
+</style>"""
+
     return "\n".join([
-        f"---\ntitle: \"Saylor Tracker\"\n---\n",
-        "# 📈 Saylor Tracker",
+        f"---\ntitle: \"Saylor Infinite Money Glitch Tracker\"\n---\n",
+        style_block,
+        f"# 🚀 Saylor Infinite Money Glitch Tracker",
         f"_Last updated {TIMESTAMP_STR}_\n",
         f"### 👉 [Today's full report — {DATE_STR}]({today_link})\n",
-        "## The Strategy Grid\n",
+        "## The Saylor Scam Grid\n",
         build_grid_table(grid) + "\n",
-        build_pnl_sentence(treasury) + "\n",
+        pnl_html + "\n",
         f"## Archive — last {ROLLING_DAYS} days\n",
         "\n".join(archive_lines) + "\n",
-        "---\n_Automated. Not investment advice._",
+        "---\n<p style=\"color: #666; font-size: 0.85em; text-align: center;\"><em>Automated. Not investment advice.</em></p>",
     ])
 
 
